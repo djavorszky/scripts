@@ -1,0 +1,4 @@
+echo "For The BASEDIR environment errors: chmod 777 *.sh"
+cd tomcat*
+cd bin
+./catalina.sh run

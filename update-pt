@@ -1,0 +1,22 @@
+#!/bin/bash
+
+ptool="/home/javdaniel/liferay/install/patching-tool"
+bundles="/home/javdaniel/liferay/bundles"
+
+if [[ $# -eq 0 ]]; then
+	if [[ -d ./patching-tool ]]; then
+		cp -R $ptool .
+		echo "Updated patching-tool"
+	else
+		echo "patching-tool folder not found."
+	fi
+elif [[ $1 = "all" ]]; then
+	for f in $bundles/*; do
+		for d in $f/*; do
+			if [[ -d $d/patching-tool ]]; then
+				echo "Updating $d";
+				cp -R $ptool $d
+			fi
+		done
+	done
+fi

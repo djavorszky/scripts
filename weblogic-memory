@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "doubling memory settings"
+echo "512 -> 1024"
+sed -i "s/512/1024/g" bin/setDomainEnv.sh
+echo "256 -> 512"
+sed -i "s/256/512/g" bin/setDomainEnv.sh
+echo "128 -> 256"
+sed -i "s/128/256/g" bin/setDomainEnv.sh
+echo "64 -> 128"
+sed -i "s/64/128/g" bin/setDomainEnv.sh
+echo "48 -> 128"
+sed -i "s/48/128/g" bin/setDomainEnv.sh
+
+

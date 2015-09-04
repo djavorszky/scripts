@@ -1,0 +1,17 @@
+#!/bin/bash
+
+case $1 in
+'c')
+	/usr/local/mysql/bin/mysql -u root -proot -e "create database $2 charset utf8;"
+	;;
+'d')
+	/usr/local/mysql/bin/mysql -u root -proot -e "drop database $2;"
+	;;
+'rc')
+	/usr/local/mysql/bin/mysql -u root -proot -e "drop database $2;create database $2 charset utf8;"
+	;;
+*)
+	/usr/local/mysql/bin/mysql -u root -proot
+	;;
+esac
+

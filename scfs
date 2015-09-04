@@ -1,0 +1,81 @@
+#!/bin/bash
+
+
+dir="patching-tool/patches"
+r2="/media/r2d2/Support"
+
+version=$1
+
+
+if [ $# -eq 2 ] && [[ $version == 6??? ]]; then
+	if [ -f $r2/Fix\ Packs/$version/hotfix/liferay-hotfix-$2-*.zip ]; then
+		if [ -f patching-tool/patches/liferay-hotfix-$2-*.zip ]; then
+			echo "hotfix-$2-$1 already there"
+		else
+			cp -v $r2/Fix\ Packs/$version/hotfix/liferay-hotfix-$2-*.zip $dir
+		fi
+	elif [ -f $r2/Fix\ Packs/$version/liferay-fix*-$2-$1.zip ]; then
+
+		if [ -f patching-tool/patches/liferay-fix*-$2-$1.zip ]; then
+			echo "fixpack $2-$1 already there"
+		else
+			cp -v $r2/Fix\ Packs/$version/liferay-fix*-$2-$1.zip $dir
+		fi
+	elif [ `echo $2 | cut -d- -f 1` == "sec" ]; then
+
+		num=`echo $2 | cut -d- -f 2`
+
+		if [ -f $r2/Fix\ Packs/$version/hotfix/liferay-security-hotfix-$num-$1.zip ]; then
+			if [ -f patching-tool/patches/liferay-security-hotfix-$num-$1.zip ]; then
+				echo "security-hotfix-$num already there"
+			else
+				cp -v $r2/Fix\ Packs/$version/security-hotfix/liferay-security-hotfix-$num-*.zip $dir
+			fi
+		else
+
+			echo "Could not match to any security fix: $2"
+
+		fi
+
+	else
+
+		echo "Could not match to any available fix: $2"
+
+	fi
+elif [ $# -lt 2 ] && [[ $version == 6??? ]]; then
+
+	echo "Too few arguments. First argument should always be the version you want to copy from-to!"
+
+elif [[ $version == 6??? ]]; then
+	scfs $version $2
+	shift 2
+	scfs $version $@
+else
+	if [ $# -ne 1 ]; then
+
+		scfs $1
+		shift 1
+		scfs $@
+	else
+
+		## Matching fixes from the "Currently Installed Patches:" list from patching-tool info ##
+
+		currentFix=`echo $1 | cut -d, -f 1`
+		currentVersion=`echo $currentFix | tail -c 5`
+
+		if [ -f $r2/Fix\ Packs/$currentVersion/hotfix/liferay-$currentFix.zip ]; then
+			if [ -f patching-tool/patches/liferay-$currentFix.zip ]; then
+				echo "$currentFix already there"
+			else
+				cp -v $r2/Fix\ Packs/$currentVersion/hotfix/liferay-$currentFix.zip $dir
+			fi
+		elif [ -f $r2/Fix\ Packs/$currentVersion/liferay-fix*-$currentFix.zip ]; then
+
+			if [ -f patching-tool/patches/liferay-fix*-$currentFix.zip ]; then
+				echo "fixpack $currentFix already there"
+			else
+				cp -v $r2/Fix\ Packs/$currentVersion/hotfix/liferay-fix*-$currentFix.zip $dir
+			fi
+		fi
+	fi
+fi

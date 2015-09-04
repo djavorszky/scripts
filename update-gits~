@@ -1,0 +1,37 @@
+#!/bin/bash
+
+gitrepos="/home/javdaniel/liferay/git"
+
+branches="ee-6.0.x ee-6.1.x ee-6.2.x ee-7.0.x"
+public="liferay-portal liferay-plugins"
+private="liferay-portal-ee liferay-plugins-ee"
+
+for repository in $public
+do
+	cd $gitrepos/$repository
+	echo "-"
+	echo "Getting $repository master"
+	echo "-"
+	git clean -fd
+	git reset --hard
+	git checkout master
+	git pull upstream master
+	git push origin master
+done
+
+
+for repository in $private
+do
+	for branch in $branches
+	do
+		cd $gitrepos/$repository
+		echo "-"
+		echo "Getting $repository $branch"
+		echo "-"
+		git clean -fd
+		git reset --hard
+		git checkout $branch
+		git pull upstream $branch
+		git push origin $branch
+	done
+done

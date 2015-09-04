@@ -1,0 +1,20 @@
+#!/bin/bash
+
+R2D2="/mnt/r2d2_data/Support/Fix Packs/6210"
+patches_with_src="./patches_with_src"
+
+sed_component_name () {
+	echo "$i" | sed 's/\(liferay-fix-pack-\)//' | \
+				sed	's/-[0-9]\+-[0-9]\+.zip//';
+}
+
+sed_zips () {
+	echo "$i" | sed 's/\.zip/-src\.zip/';
+	return;
+}
+
+mkdir "$patches_with_src"
+
+for i in *.zip; do
+	cp --interactive --verbose "$R2D2/$(sed_component_name)/$(sed_zips)" "$patches_with_src";
+done;

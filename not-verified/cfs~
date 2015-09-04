@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# $2 = hotfix-x
+# $1 = VERSiON
+
+if [ $# -eq 2 ]; then
+	cp /home/jdaniel/r2d2/r2d2/Support/Fix\ Packs/$1/liferay-$2-$1.zip ./patching-tool/patches
+else
+	echo "You need to run with two parameters, such as:"
+	echo "cfs 6012 hotfix-123"
+fi
+

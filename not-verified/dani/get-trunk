@@ -1,0 +1,15 @@
+#!/bin/bash
+
+loc="/home/jdaniel/liferay/gitrepos/liferay-portal"
+
+cd $loc
+
+echo "checking out master"
+git checkout master
+
+echo "pulling upstream master"
+git pull upstream master
+
+echo "building portal"
+ant all
+

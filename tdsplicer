@@ -1,0 +1,17 @@
+#!/bin/bash
+
+newfile="threaddump";
+i=1;
+
+while read line; do
+
+	if [[ $line == "reniotlet"* ]]; then
+		let i+=1;
+		newfile="threaddump-$i";
+		echo "started newfile: $newfile"
+		echo $line > $newfile;
+	else
+		echo $line >> $newfile;
+	fi
+
+done < $1

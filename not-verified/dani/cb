@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#FIRST: DIRECTORY
+#SECOND: VERSION
+
+
+echo 'Making Directory' + $1
+mkdir $1
+echo 'Entering Directory'
+cd $1
+echo 'Copying Script'
+cp ../p .
+echo 'Running Script'
+python /home/jdaniel/liferay/bundles/$1/p $2 $1

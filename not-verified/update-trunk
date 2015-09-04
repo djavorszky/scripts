@@ -1,0 +1,11 @@
+#!/bin/bash
+
+gitrepos="/Users/jdaniel/liferay/git"
+
+cd $gitrepos/liferay-portal
+echo "Getting trunk"
+git clean -fd
+git reset --hard
+git checkout master
+git pull upstream master
+git push origin master

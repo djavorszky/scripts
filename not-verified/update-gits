@@ -1,0 +1,42 @@
+#!/bin/bash
+
+gitrepos="/Users/jdaniel/liferay/git"
+
+update-trunk
+
+update-62x
+
+update-61x
+
+update-60x
+
+cd $gitrepos/liferay-plugins
+git clean -fd
+git reset --hard
+echo "Getting plugins master"
+git checkout master
+git pull upstream master
+git push origin master
+
+cd $gitrepos/liferay-plugins-ee
+git clean -fd
+git reset --hard
+echo "Getting plugins-ee ee-6.2.x"
+git checkout ee-6.2.x
+git pull upstream ee-6.2.x
+git push origin ee-6.2.x
+
+cd $gitrepos/liferay-plugins-ee
+echo "Getting plugins-ee ee-6.1.x"
+git clean -fd
+git reset --hard
+git checkout ee-6.1.x
+git pull upstream ee-6.1.x
+git push origin ee-6.1.x
+
+echo "Getting plugins-ee ee-6.0.x"
+git clean -fd
+git reset --hard
+git checkout ee-6.0.x
+git pull upstream ee-6.0.x
+git push origin ee-6.0.x

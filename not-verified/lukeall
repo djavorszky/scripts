@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -jar /home/jdaniel/liferay/lukeall/lukeall-3.5.0.jar

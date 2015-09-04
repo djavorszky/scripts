@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [[ $# -gt 0 ]]
+then branch=$1
+else branch="master"
+fi
+
+
+echo “Checking out $branch …”
+git checkout $branch
+echo “Fetching upstream…”
+git fetch upstream
+echo “Fetching tags…”
+git fetch upstream --tags
+echo “Pulling $branch …”
+git pull upstream $branch
+echo “Pushing $branch …”
+git push origin $branch

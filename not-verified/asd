@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo -n "Test..."
+echo -e " \e[00;32mOK\e[00m" 

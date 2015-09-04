@@ -1,0 +1,18 @@
+#!/bin/bash
+
+for f in *.zip
+do
+
+	echo $f
+	mkdir "dir_$f"
+
+	cd dir_$f
+
+	unzip ../$f > /dev/null
+
+	grep $1 fixpack_documentation.xml
+
+	cd ..
+
+	rm -rf dir_$f
+done

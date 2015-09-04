@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if [ -z $MW_HOME -o -z $JAVA_HOME ]; then
+	echo "MW_HOME or JAVA_HOME has not been set-up properly."
+	exit 1
+fi
+
+if [ -x $MW_HOME/wlserver/server/bin/setWLSEnv.sh ]; then
+	. $MW_HOME/wlserver/server/bin/setWLSEnv.sh
+else
+	echo "Invalid WLS installation under: ${MW_HOME}"
+	exit 1
+fi
+
+$JAVA_HOME/bin/java $USER_MEM_ARGS -cp $CLASSPATH \
+	-Dweblogic.management.allowClearTextPasswords=true \
+	-Dweblogic.management.GenerateDefaultConfig=true \
+	-Dweblogic.management.username=weblogic \
+	-Dweblogic.management.password=weblogic1 \
+	weblogic.Server &
+
+WL_PID=$!
+
+COUNTER=0
+RESP=
+
+while [ $COUNTER -lt 90 -a -z "${RESP}" ]; do
+	RESP=`echo -e "HEAD / HTTP/1.0\n\n" | nc -w 1 localhost 7001 2>/dev/null`
+	sleep 1
+	let COUNTER=COUNTER+1 
+done
+
+kill $WL_PID
+
+if [ $(ps -p $WL_PID | wc -l) -ne 2 ]; then
+	sleep 1
+	kill -9 $WL_PID
+fi

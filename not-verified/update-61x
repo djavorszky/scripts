@@ -1,0 +1,11 @@
+#!/bin/bash
+
+gitrepos="/Users/jdaniel/liferay/git"
+
+cd $gitrepos/liferay-portal-ee
+echo "Getting ee-6.1.x"
+git clean -fd
+git reset --hard
+git checkout ee-6.1.x
+git pull upstream ee-6.1.x
+git push origin ee-6.1.x

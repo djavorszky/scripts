@@ -1,0 +1,6 @@
+cd patching-tool
+chmod +x patching-tool.sh
+./patching-tool.sh auto-discovery
+./patching-tool.sh install
+./patching-tool.sh info
+cd ..

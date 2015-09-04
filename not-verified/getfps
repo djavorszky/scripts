@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ $# -eq 2 ]; then
+	echo "INFO: Updating the fix pack cache"
+	echo " "
+	/home/jdaniel/liferay/fpd/fp-dev-tool.sh $2
+	echo " "	
+	echo "INFO: If there was an error here, nevermind."
+	echo "--------------------------------------------"
+	echo " "
+	cat /home/jdaniel/liferay/fpd/cache/hotfix-list.txt | grep "${1^^}-" | grep $2
+	echo " "
+else
+	echo "Usage: getfps <CUSTOMER-CODE> <VERSION>"
+	echo "E.g. getfps TSB 6110"
+
+fi

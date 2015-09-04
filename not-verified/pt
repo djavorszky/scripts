@@ -1,0 +1,23 @@
+#!/bin/bash
+
+case $1 in
+'i')
+	./patching-tool/patching-tool.sh $2 install
+	;;
+'a')
+	./patching-tool/patching-tool.sh auto-discovery
+	;;
+'r')
+	./patching-tool/patching-tool.sh $2 revert
+	;;
+'fi')
+	./patching-tool/patching-tool.sh $2 install -force
+	;;
+'up')
+	./patching-tool/patching-tool.sh $2 update-plugins
+	;;
+*)
+	./patching-tool/patching-tool.sh $2 info
+	;;
+esac
+

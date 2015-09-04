@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if [ $1 == "immediate" ]; then
+	sudo shutdown -h now
+fi

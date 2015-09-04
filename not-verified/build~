@@ -1,0 +1,31 @@
+#!/bin/bash
+
+gitrepos="/home/jdaniel/gitrepos"
+
+case $1 in
+'trunk')
+	cd $gitrepos/liferay-portal
+	git checkout master
+	ant all
+	;;
+'6.1.x')
+	cd $gitrepos/liferay-portal-ee
+	git checkout ee-6.1.x
+	cp $gitrepos/app.server.jdaniel.properties.61x $gitrepos/liferay-portal-ee/app.server.jdaniel.properties
+	ant all
+	;;
+'6.0.x')
+	cd $gitrepos/liferay-portal-ee
+	git checkout ee-6.0.x
+	cp $gitrepos/app.server.jdaniel.properties.60x $gitrepos/liferay-portal-ee/app.server.jdaniel.properties
+	ant all
+	;;
+'all')
+	build trunk
+	build 6.1.x
+	build 6.0.x
+	;;
+*)
+	echo "Usage: build trunk | build 6.1.x | build 6.0.x | build all"
+	;;
+esac

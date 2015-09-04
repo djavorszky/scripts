@@ -1,0 +1,151 @@
+from sys import argv
+import shutil
+import zipfile
+import os.path
+import MySQLdb
+
+script, version, databasename = argv
+source_location = "/home/jdaniel/liferay/bundles/install/"
+
+def start():
+    print "==="
+    print "This is the install script to set up an environment in a Linux environment"
+    print "You are installing a tomcat bundle with Liferay Portal Version %s" % version
+    print "Doing Magic..."
+    print "==="
+
+    if version == "6120":
+        deploy_six_ga2()
+    elif version == "6110":
+        deploy_six_ga1()
+    elif version == "6012":
+        deploy_six_sp2()
+    elif version == "6011":
+        deploy_six_sp1()
+    elif version == "6010":
+        deploy_six_sp0()
+    else:
+        print "Unrecognized version, exiting program."
+        exit(1);
+
+def deploy_six_ga2():
+    file_name = "liferay-portal-tomcat-6.1.20-ee-ga2-20120731110418084.zip"
+    tomcat_location = "liferay-portal-6.1.20-ee-ga2/tomcat-7.0.27"
+    liferay_folder = "liferay-portal-6.1.20-ee-ga2"
+    
+    bundle = source_location + "portal" + "/" + version +"/"
+    unzip_bundle_here(file_name, bundle)
+    copy_stuff(tomcat_location + "/", version)
+    create_database(databasename)
+    
+    print "Done. You should now be able to run your server."
+
+def deploy_six_ga1():
+    file_name = "liferay-portal-tomcat-6.1.10-ee-ga1-20120223174854827.zip"
+    tomcat_location = "liferay-portal-6.1.10-ee-ga1/tomcat-7.0.25/"
+    liferay_folder = "liferay-portal-6.1.10-ee-ga1"
+    
+    
+    bundle = source_location + "portal" + "/"+ version +"/"
+    unzip_bundle_here(file_name, bundle)
+    copy_stuff(tomcat_location, version)
+    create_database(databasename)
+    
+    print "Done. You should now be able to run your server."
+
+def deploy_six_sp2():
+    file_name = "liferay-portal-tomcat-6.0-ee-sp2-20110727.zip"
+    tomcat_location = "liferay-portal-6.0-ee-sp2/tomcat-6.0.32/"
+    liferay_folder = "liferay-portal-6.0-ee-sp2"
+    
+
+    bundle = source_location + "portal" + "/"+ version +"/"
+    unzip_bundle_here(file_name, bundle)
+    copy_stuff(tomcat_location, version)
+    create_database(databasename)
+    
+    print "Done. You should now be able to run your server."
+
+def deploy_six_sp1():
+    file_name = "liferay-portal-tomcat-6.0-ee-sp1.zip"
+    tomcat_location = "liferay-portal-6.0-ee-sp1/tomcat-6.0.29/"
+    liferay_folder = "liferay-portal-6.0-ee-sp1"
+
+
+    bundle = source_location + "portal" + "/"+ version +"/"
+    unzip_bundle_here(file_name, bundle)
+    copy_stuff(tomcat_location, version)
+    create_database(databasename)
+    
+    print "Done. You should now be able to run your server."
+    
+def deploy_six_sp0():
+    file_name = "liferay-portal-tomcat-6.0-ee.zip"
+    tomcat_location = "liferay-portal-6.0-ee/tomcat-6.0.29/"
+    liferay_folder = "liferay-portal-6.0-ee"
+    
+    bundle = source_location + "portal" + "/"+ version +"/"
+    unzip_bundle_here(file_name, bundle)
+    copy_stuff(tomcat_location, version)
+    create_database(databasename)
+    
+    print "Done. You should now be able to run your server."
+    
+    
+def unzip_bundle_here(name_of_file, bundle):
+    print "Copying bundle ZIP file"
+    shutil.copy(bundle + name_of_file, "./")
+    print "Copy finished. Unzipping file..."
+
+    zfile = zipfile.ZipFile(name_of_file)
+    for name in zfile.namelist():
+        dirname, filename = os.path.split(name)
+        #print "Unzipping " + dirname + filename
+        if name.endswith('/') and not os.path.exists(name):
+            os.mkdir(name)
+        else:
+            fd = open(name,"w")
+            fd.write(zfile.read(name))
+            fd.close()
+    print "Removing zipfile"
+    os.remove(name_of_file)
+
+def copy_stuff(folder, version):
+    if version =="6110" or version == "6120":
+        print "Copying mysql database connector."
+        shutil.copy(source_location + "jdbc/mysql.jar", folder + "lib/ext")
+    
+    print "Creating the portal-ext.properties file"
+    portalext = open(folder+"../portal-ext.properties", "w+")
+    
+    print "Populating the portal-ext.properties file"
+    orig_portalext = open(source_location + "portalext/portal-ext.properties", "r")
+    indata = orig_portalext.read().replace("DATABASENAME", databasename)
+    portalext.write(indata)
+    
+    orig_portalext.close()
+    portalext.close()
+
+    give_permission(folder)
+    
+def give_permission(folder):
+    print "Giving permission to files"
+    os.chmod(folder + "bin/catalina.sh", 0755)
+    os.chmod(folder + "bin/digest.sh", 0755)
+    os.chmod(folder + "bin/setclasspath.sh", 0755)
+    os.chmod(folder + "bin/setenv.sh", 0755)
+    os.chmod(folder + "bin/shutdown.sh", 0755)
+    os.chmod(folder + "bin/startup.sh", 0755)
+    os.chmod(folder + "bin/tool-wrapper.sh", 0755)
+    os.chmod(folder + "bin/version.sh", 0755)
+    
+   
+def create_database(databasename):
+    print "Connecting to the database."
+    db_connection = MySQLdb.connect(host="localhost", user="root", passwd="root")
+    cursor = db_connection.cursor()
+    print "Creating Database"
+    sql = 'create database %s charset utf8' % databasename
+    cursor.execute(sql)
+
+start()

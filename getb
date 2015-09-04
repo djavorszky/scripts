@@ -1,0 +1,66 @@
+#!/bin/bash
+
+r2loc="/media/r2d2/Support/Bundles";
+bundlesloc="/home/javdaniel/liferay/bundles";
+
+if [[ $# -eq 0 ]]; then
+	echo "Need at least one parameter. These can be: 60x, 61x, 62x, 70x, trunk, all.";
+else
+	run=true;
+	case $1 in
+		'60x')
+			folder="60x";
+			ext="ee-6.0.x";
+			;;
+		'61x')
+			folder="61x";
+			ext="ee-6.1.x";
+			;;
+		'62x')
+			folder="62x";
+			ext="ee-6.2.x";
+			;;
+		'70x')
+			folder="70x";
+			ext="ee-7.0.x";
+			;;
+		'trunk')
+			folder="trunk";
+			ext="master";
+			;;
+		'all')
+			getb 60x
+			getb 61x
+			getb 62x
+			getb 70x
+			getb trunk
+			run=false
+			;;
+		*)
+			run=false;
+			;;
+	esac
+
+	if [[ $run = true ]]; then
+		if ls $r2loc/liferay-$ext-*.zip &> /dev/null ; then
+			cd $bundlesloc/$folder
+			echo "== Updating $ext bundle ==";
+			echo "Backing up portal-ext.properties";
+			cp $bundlesloc/$folder/portal-ext.properties $bundlesloc
+			echo "Deleting previous version";
+			rm -rf $bundlesloc/$folder/*
+			echo "Copying new version";
+			cp $r2loc/liferay-$ext-*.zip $bundlesloc/$folder
+			echo "Unzipping"
+			unzip $bundlesloc/$folder/liferay-$ext-*.zip > /dev/null
+			echo "Restoring portal-ext";
+			mv $bundlesloc/portal-ext.properties $bundlesloc/$folder/portal-ext.properties
+			echo "Cleanup";
+			rm $bundlesloc/$folder/*.zip
+			echo "";
+		else
+			echo "== Not updating $ext bundle as it wasn't found on r2d2. ==";
+			echo "";			
+		fi
+	fi
+fi

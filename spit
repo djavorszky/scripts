@@ -1,0 +1,98 @@
+#!/bin/bash
+
+patch="patching-tool/patches"
+dir="$patch/spit"
+
+if [ "$patch" != "" ]; then
+	if [ $# -eq 1 ]; then
+		if [ $1 == "revert" ]; then
+			if [ -d "$dir" ]; then
+
+				echo "Moving all hotfixes back"	
+				cp -v $dir/* $patch
+
+				echo "Deleting $dir"
+				rm -r $dir	
+			else
+
+				echo "Nothing to revert"
+			fi
+		elif [ $1 == "all" ]; then
+
+			if [ ! -d "$dir" ]; then
+				echo "Creating directory \"$dir\""
+				mkdir $dir
+			fi
+
+			for i in $patch/*.zip
+			do
+
+				mv -v $i $dir/
+
+			done
+		else
+
+			if [ -f $patch/liferay-hotfix-$1-* ]; then
+				if [ ! -d "$dir" ]; then
+					echo "Creating directory \"$dir\""
+					mkdir $dir
+				fi
+
+				#echo "Moving hotfix-$1 to spit directory"
+				mv -v patching-tool/patches/liferay-hotfix-$1-*.zip $dir
+
+			elif [ -f $patch/liferay-fix*-$1-* ]; then
+				
+				if [ ! -d "$dir" ]; then
+
+					echo "Creating directory \"$dir\""
+					mkdir $dir
+
+				fi
+
+				#echo "Moving fixpack-$1 to spit directory"		
+				mv -v patching-tool/patches/liferay-fix*-$1-*.zip $dir
+
+			elif [ `echo $1 | cut -d- -f 1` == "sec" ]; then
+
+				num=`echo $1 | cut -d- -f 2`
+
+				if [ -f $patch/liferay-security-hotfix-$num-*.zip ]; then
+
+					if [ ! -d "$dir" ]; then
+
+						echo "Creating directory \"$dir\""
+						mkdir $dir
+	
+					fi
+
+					#echo "Moving security-$num to spit directory"		
+					mv -v patching-tool/patches/liferay-security-hotfix-$num-*.zip $dir
+				else
+
+					echo "Could not match to any available fix"
+
+				fi
+
+			else
+
+				echo "Could not match to any available fix"
+
+			fi
+		fi
+	elif [ $# -eq 0 ]; then
+
+		echo "Listing fixes in \"patches\" folder"
+		ls $patch -1 --color=auto
+
+	else
+
+		spit $1
+		shift 1
+		spit $@
+
+	fi
+else
+
+	echo "Could not find patches folder. You'll have to be in the liferay root or patching-tool folders to have this script work."
+fi

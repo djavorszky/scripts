@@ -1,0 +1,4 @@
+cd patching-tool
+./patching-tool.sh revert
+./patching-tool.sh info
+cd ..

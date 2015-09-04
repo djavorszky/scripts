@@ -1,0 +1,181 @@
+#!/bin/bash
+
+# NOTE! Never put the slash at the end of a path.
+# NOTE! First argument is folder and database name
+# NOTE! Second argument is portal version!
+
+
+# Define the locations
+installRootPath="/home/$USER/liferay/install"
+portalPath="$installRootPath/portal"
+licensePath="$installRootPath/license"
+jdbcPath="$installRootPath/jdbc"
+ptPath="$installRootPath/patching-tool"
+portalextPath="$installRootPath/portalext"
+
+
+#debug
+	#echo $installRootPath
+	#echo $portalPath
+	#echo $licensePath
+	#echo $jdbcPath
+	#echo $ptPath
+	#echo $portalextPath
+#gubed
+
+### Steps needed to be taken ###
+# 1  - Create a folder -- DONE
+# 2  - Step in folder, copy bundle .zip -- DONE
+# 3  - Unzip bundle (7z e quiet mode), remove .zip file -- DONE
+# 4  - Delete temp and work folders -- DONE
+# 5  - Copy portal-ext.properties, populate with data -- DONE
+# 6  - Give execute permission to .sh files in tomcat/bin -- DONE
+# 7  - If applicable, create deploy folder  -- DONE
+# 8  - Copy license file to deploy folder -- DONE
+# 9  - If applicable, copy mysql.jar to tomcat/lib/ext -- DONE
+# 10 - If applicable: update Patching-tool -- DONE
+# 11 - If applicable: Give execute permission to patching-tool.sh -- DONE
+# 12 - Create database -- DONE
+
+changePort=false
+portnumber="8080"
+
+clustered=false
+numOfNodes=0
+
+function start() {
+	echo "You are at" `pwd`
+	echo "Creating bundle at" "`pwd`/$1" 
+	mkdir $1
+	cd $1
+
+	#extract silently
+	echo "Extracting bundle"
+	unzip $portalPath/$2/liferay-portal-tomcat*.zip > /dev/null
+#	unzip liferay-portal-tomcat*.zip > /dev/null
+
+	#step into liferay-home
+	cd liferay-portal*
+
+	#remove temp and work
+	echo "Deleting temp & work"
+	rm -r tomcat-*/temp/* tomcat-*/work/*
+
+	#copy portal-ext to liferay-home
+	echo "Copying portal-ext"
+	cp $portalextPath/portal-ext.properties .
+
+	#change it so that it points to the soon-to-be-created database
+	sed -i .bak "s/DATABASENAME/$1/g" portal-ext.properties > /dev/null
+	rm portal-ext.properties.bak
+
+	if [ $clustered = true ]; then
+		echo "Adding cluster properties"
+		echo "cluster.link.enabled=true" >> portal-ext.properties
+		echo "lucene.replicate.write=true" >> portal-ext.properties
+		echo "org.quartz.jobStore.isClustered=true" >> portal-ext.properties
+	fi
+
+	#give execute permissions to .sh files
+	chmod +x tomcat*/bin/*.sh
+
+	#create deploy folder if it doesn't exist
+	if [ ! -d deploy ]; then
+		mkdir deploy
+	fi
+
+	#copy license file to deploy folder	
+	echo "Copying license"
+	cp $licensePath/$2/license-* deploy/
+
+	#copy mysql.jar to tomcat/lib/ext
+	if [ $2 != '6010' ] || [ $2 != '6011' ]; then
+		echo "Copying mysql.jar"
+		cp $jdbcPath/mysql.jar tomcat-*/lib/ext/
+	fi
+
+	#update patching-tool
+	if [ $2 != '6010' ] || [ $2 != '6011' ]; then
+		echo "Updating patching-tool"
+		cp -r $ptPath/* patching-tool/
+	
+		#give permission to patching-tool.sh
+		chmod +x patching-tool/patching-tool.sh
+	fi
+
+	#Run patching-tool auto-discovery
+	echo "Running patching-tool auto-discovery"
+	pt a > /dev/null
+
+	#create database
+	echo "Creating database"
+	mys c $1
+
+	if [ $changePort = true ] && [ $clustered = false ]; then
+		echo "Modifying port to $portnumber"
+		firstTwo=`echo $portnumber | cut -c1-2`
+		sed -i .bak "s/8080/$portnumber/g" tomcat-*/conf/server.xml
+		sed -i .bak "s/80/$firstTwo/g" tomcat-*/conf/server.xml
+	fi
+
+# Not sure if this works.
+	if [ $clustered = true ]; then
+		cd ..
+		mv liferay-portal* node1
+		for ((  i = 2 ;  i <= $numOfNodes;  i++  ))
+		do
+			echo "creating node$i"
+			cp -r node1 node$i
+			
+			tempPortNumber=$((portnumber+$i-1))
+			firstTwo=`echo $tempPortNumber | cut -c1-2`
+			firstTwo=$((firstTwo+$i-1))
+			echo "Modifying port to $firstTwo$firstTwo"
+			
+			cd node$i
+			sed -i .bak "s/80/$firstTwo/g" tomcat-*/conf/server.xml
+			cd ..
+		done
+	fi
+
+	echo "All done."
+}
+
+function displayHelp() {
+	echo "Usage: ib [-h] [-p port] [-c number] databasename version" 
+
+	echo "List of Options:"
+	echo "Mandatory:"
+	echo "databasename"
+	echo "version \n"
+	echo "############# \n"
+	echo "Optional:"
+	echo "-p port -> changes the port number to the one you specified"
+	echo "-c number -> creates cluster with # amount of nodes. The names will be called \"nodex\""
+	echo "ports will be changed to 8080, 8181, 8282..."
+
+}
+
+#if [ $1 = '-h' ]; then
+#	displayHelp
+#	shift
+#fi
+
+#if [ $1 = '-p' ]; then
+#	$portnumber=$2
+#	shift 2
+#fi
+
+if [ $1 = '-c' ]; then
+	clustered=true
+	numOfNodes=$2
+
+	shift 2
+
+fi
+
+if [ $# -eq 2 ]; then
+	start $1 $2
+else
+	displayHelp
+fi

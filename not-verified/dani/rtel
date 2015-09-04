@@ -1,0 +1,80 @@
+#!/bin/bash
+
+patch=`find -name patches-all`
+dir="$patch/spit"
+
+if [ "$patch" != "" ]; then
+	if [ "$1" == "list" ]; then	
+		if [ -d $dir ]; then
+
+			ls $dir -1 --color=auto
+
+		else
+
+			echo "Spit folder does not exist."
+
+		fi
+	fi
+
+	if [ $# -eq 1 ]; then
+		if [ -d $dir ]; then
+			if [ -f $dir/liferay-hotfix-$1-*.zip ]; then
+
+				#echo "Copying hotfix-$1 back to patches folder"	
+				mv -v $dir/liferay-hotfix-$1-*.zip $patch
+
+			elif [ -f $dir/liferay-fix*-$1-* ]; then
+
+				#echo "Copying fixpack-$1 back to patches folder"
+				mv -v $dir/liferay-fix*-$1-*.zip $dir/../
+
+			elif [ `echo $1 | cut -d- -f 1` == "sec" ]; then
+
+				num=`echo $1 | cut -d- -f 2`
+
+				if [ -f $dir/liferay-security-hotfix-$num-*.zip ]; then
+
+					#echo "Moving security-$num to spit directory"		
+					mv -v $dir/liferay-security-hotfix-$num-*.zip $patch
+
+				else
+
+					echo "Could not match to any available fix"
+				fi
+
+			else
+
+				echo "Could not match to any available fix"
+
+			fi
+	
+			if [ `ls $dir | wc -l` -eq 0 ]; then
+
+				echo "Spit folder empty, deleting."
+				rm -r $dir
+
+			fi
+		fi
+	elif [ $# -eq 0 ]; then
+
+		if [ `ls $dir | wc -l` -gt 0 ]; then
+
+			ls -l $dir
+
+		else
+
+			echo "No patches found in the spit folder"
+		
+		fi
+	else
+
+		rtel $1
+		shift 1
+		rtel $@
+
+	fi
+else
+
+	echo "Could not find patches folder. You'll have to be in the liferay root or patching-tool folders to have this script work."
+
+fi

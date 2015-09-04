@@ -1,0 +1,61 @@
+#!/bin/bash
+
+case $1 in
+'hsql')
+	echo "## HSQL ##"
+	echo "Start Server in standalone (port 9001):"
+	echo "java -cp <location of hsql.jar> org.hsqldb.server.Server --database.0 file:<filename> --dbname.0 <dbname>"
+	echo "To import / export, simply copy files"
+	;;
+'mysql')
+	echo "## MYSQL ##"
+	echo "Start / Stop mysql: sudo service mysql stop; sudo service mysql start"
+	echo "Export database: mysqldump --add-drop-table -u root -p <database> > file.sql"
+	echo "Import database: mysql -u root -p <database> < file.sql"
+	echo "Execute query from command line: mysql -u root -p (<database>) -e \"SCRIPT\""
+	echo "" 
+	echo "# LOGGING #"
+	echo "1 - Create file, for example 'mysql.log' at ~/mysql-logs folder"
+	echo "2 - Run 'sudo chown mysql:mysql mysql.log'"
+	echo "3 - Log in to mysql (mysql -u root -p)"
+	echo "4 - mysql> set general_log_file = \"/home/username/mysql-logs/mysql.log\""
+	echo "5 - mysql> set global general_log = \"ON\" "
+	echo ""
+	echo "Once done testing, turn it off."
+
+	echo "######"
+	echo "Grant remote access to new user"
+	echo "mysql> create user 'user'@'%' identified by 'user';"
+	echo "mysql> grant all privileges on *.* to 'user'@'%' with grant option;"
+
+	;;
+'oracle')
+	echo "## ORACLE ##"
+	echo "Create user:"
+	echo "SQL> create user username identified by password;"
+	echo "SQL> grant resource, connect to username;"
+	echo ""
+	echo "Create tablespace:"
+	echo "SQL> create tablespace \"<tablespacename>\" datafile '<datafile-location>.dbf' size 32m autoextend on next 32m maxsize 8194m logging extent management local;"
+	echo ""
+	echo "Import (impdp):"
+	echo "SQL> create directory <dirname> as '<location-of-directory>'"
+	echo "impdp <user>/<password> directory='<dirname>' dumpfile=<dumpfile>.dmp logfile=<logfile>.log full=y"
+	echo ""
+	echo "Import and remap to schema."
+	echo "oldschema: The user that's in the import (that's missing)."
+	echo "newschema: The user that I'm importing for."
+	echo "oldtablespace: The table space that's in the import (that's missing)."
+	echo "users: leave it as is."
+	echo ""
+	echo "impdp system/password directory=<dirname> dumpfile=<dumpfile>.dmp logfile=<logfile>.log full=y remap_schema=oldschema:newschema remap_tablespace=oldtablespace:users"
+	;;
+'all' | *)
+	dbinfo hsql
+	echo ""
+	dbinfo mysql
+	echo "" 
+	dbinfo oracle
+	echo ""
+	;;
+esac

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# $1 should be the command, or the profile if the command is missing
+# $2 can either be the profile, or hotfix/fixpack names.
+
+# Use this so that the script can be run from both ${liferay.home}
+# and ${patching-tool.home}
+patchingtool=`find . -maxdepth 2 -type f -name patching-tool.sh`;
+
+if [ ! -z $patchingtool ]
+then
+	case $1 in
+	'i')
+		${patchingtool} $2 install
+		;;
+	'a')
+		${patchingtool} auto-discovery
+		;;
+	'r')
+		${patchingtool} $2 revert
+		;;
+	'fi')
+		${patchingtool} $2 install -force
+		;;
+	'up')
+		${patchingtool} $2 update-plugins
+		;;
+	'si')
+		${patchingtool} support-info
+		;;
+	'lp')
+		${patchingtool} list-plugins
+		;;
+	'lcu')
+		${patchingtool} list-customizations
+		;;
+	'lco')
+		${patchingtool} list-collisions
+		;;
+	'dal')
+		${patchingtool} download-all-latest
+		;;
+	'dals')
+		${patchingtool} download-all-latest-src
+		;;
+	'd')
+		shift 1
+		${patchingtool} download $@
+		;;
+	'ds')
+		shift 1
+		${patchingtool} download-src $@
+		;;
+	'fixes')
+		${patchingtool} fixed-issues
+		;;
+	'ii')
+		${patchingtool} index-info
+		;;
+	*)
+		echo "Running ${patchingtool} $1 info"
+		${patchingtool} $1 info
+		;;
+	esac
+
+else
+	echo "Can't find the Patching Tool"
+fi

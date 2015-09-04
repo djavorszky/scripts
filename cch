@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ -d ./*tomcat-*/temp/ ]; then
+	echo "Cleared temp"
+	rm -rf ./*tomcat-*/temp/*
+fi
+
+if [ -d ./*tomcat-*/work/ ]; then
+	echo "Cleared work"
+	rm -rf ./*tomcat-*/work/*
+fi
+
+c

@@ -1,0 +1,60 @@
+#!/bin/bash
+
+echo "This script HAS to be run in the tomcat folder! Are you in \$liferay-root/tomcat-<version>/? y/n"
+
+echo $1
+
+read answer
+
+
+if [ $answer == "y" ]; then
+
+	if [ ! $JAVA_HOME ]; then
+		echo "Please set \$JAVA_HOME variable then run the script again."		
+		exit 1
+	fi
+
+	sudo echo "[INFO]: Creating keystore..."
+	
+	echo "For password, use \"changeit\""
+
+	sudo keytool -genkey -alias $1 -keyalg RSA -keystore keystore
+
+
+
+	echo "[INFO]: exporting keystore..."
+
+	sudo keytool -export -alias $1 -keypass changeit -file server.crt -keystore keystore
+
+
+	echo "[INFO]: backing up cacerts file..."
+	
+	if [ ! -d $JAVA_HOME/jre/lib/security/backup ]; then
+		sudo mkdir $JAVA_HOME/jre/lib/security/backup
+	fi
+
+	sudo mv -v $JAVA_HOME/jre/lib/security/cacerts $JAVA_HOME/jre/lib/security/backup/cacerts
+
+
+	echo "[INFO]: importing cert..."
+
+	sudo keytool -import -alias $1 -file server.crt -keypass changeit -keystore "$JAVA_HOME/jre/lib/security/cacerts"
+
+	echo ""
+	echo "Modify the conf/server.xml! Replace this:
+	
+<!--
+    <Connector port=\"8443\" protocol=\"HTTP/1.1\" SSLEnabled=\"true\"
+               maxThreads=\"150\" scheme=\"https\" secure=\"true\"
+               clientAuth=\"false\" sslProtocol=\"TLS\" />
+-->"
+
+	echo "With this: 
+
+	<Connector port=\"8443\" protocol=\"HTTP/1.1\" SSLEnabled=\"true\" maxThreads=\"150\" scheme=\"https\" secure=\"true\" clientAuth=\"false\" sslProtocol=\"TLS\" keystoreFile=\"`pwd`/keystore\" keystorePass=\"changeit\" />"	
+
+	exit
+else 
+
+	exit 1
+fi

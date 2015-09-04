@@ -1,0 +1,7 @@
+#!/bin/bash
+
+ifconfig getifaddr en1
+
+alias ipwan="dig +short myip.opendns.com @resolver1.opendns.com"
+alias ipwifi="ipconfig getifaddr en1"
+alias ipeth="ipconfig getifaddr en0"
