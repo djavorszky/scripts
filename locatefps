@@ -1,0 +1,3 @@
+#!/bin/bash
+
+locate liferay-fix-pack-$1-6210-src.zip

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+########################################## USAGE ##########################################
+# $1 should be a number, stating after how many lines of the trace we should log
+# a thread as long running.
+# $2 should be a filename, in which we should look for the threads.
+# 
+# Multiple files can be added, in which way the script will run recursively.
+########################################## USAGE ##########################################
+
+i=0;
+threadRunning=0;
+name="";
+threshold=$1+2;
+writeTime="true";
+
+if [[ $# -gt 2 ]]; then
+	num=$1;
+	longrunningthreads $num $2;
+	shift 2;
+	longrunningthreads $num $@;
+elif [[ $# -eq 2 ]]; then
+
+	echo "---";
+	echo $2;
+
+	while read line; do
+
+		if [[ $writeTime = "true" ]]; then
+			# The date and time. Hopefully.
+			echo $line
+			echo "";
+			writeTime="false";
+		fi
+
+		if [[ $line == \"* ]]; then
+			let i+=1;
+			name=`echo $line | cut -d\" -f2`
+
+			threadRunning=0;
+		else
+			if [ -z "$line" ]; then
+				if [[ $threadRunning -gt $threshold ]];  then
+					echo "stack length: $threadRunning";
+					
+					grep -A$threadRunning "$name\"" $2 | while read -r grepLine ; do
+						echo $grepLine;
+					done
+					threadRunning=0;
+					echo; echo;
+				fi
+			else
+				let threadRunning+=1;
+			fi
+		fi
+	done < $2
+else
+	echo "If you get this message, then something went wrong. I have no idea what it is or how you got it. Good luck.";
+	echo "A hint: you need 2 parameters: 1st is the stacktrace length threshold. Second is the filename(s).";
+
+fi

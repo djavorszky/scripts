@@ -1,17 +1,30 @@
 #!/bin/bash
 
-newfile="threaddump";
-i=1;
+newfile="threaddump-0000";
+i=0;
+previousLine="";
 
 while read line; do
 
-	if [[ $line == "reniotlet"* ]]; then
+	if [[ $line == *"Full thread"* ]]; then
 		let i+=1;
-		newfile="threaddump-$i";
+		sed -i '$ d' $newfile;
+		let div100=$i/100;
+		let div10=$i/10;
+		if [[ $div100 -ge 1 ]]; then
+			newfile="threaddump-$i";
+		elif [[ $div10 -ge 1 ]]; then
+			newfile="threaddump-0$i";
+		else
+			newfile="threaddump-00$i";
+		fi
+
 		echo "started newfile: $newfile"
-		echo $line > $newfile;
+		echo $previousLine > $newfile;
+		echo $line >> $newfile;
 	else
 		echo $line >> $newfile;
+		previousLine=$line;
 	fi
 
 done < $1

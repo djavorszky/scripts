@@ -10,6 +10,11 @@ case $1 in
 'rc')
 	mysql -u root -proot -e "drop database $2;create database $2 charset utf8;"
 	;;
+'i')
+	mys c $2
+	mysql -u root -proot $2 < $3
+	;;
+
 *)
 	mysql -u root -proot
 	;;

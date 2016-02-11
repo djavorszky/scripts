@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# $1 should be the command, or the profile if the command is missing
+# portal-ee can either be the profile, or hotfix/fixpack names.
+
+# Use this so that the script can be run from both ${liferay.home}
+# and ${patching-tool.home}
+patchingtool=`find . -maxdepth 2 -type f -name patching-tool.sh`;
+
+
+
+if [ ! -z $patchingtool ]
+then
+	case $1 in
+	'i')
+		${patchingtool} portal-ee install
+		;;
+	'r')
+		${patchingtool} portal-ee revert
+		;;
+	'fi')
+		${patchingtool} portal-ee install -force
+		;;
+	'up')
+		${patchingtool} portal-ee update-plugins
+		;;
+	'lp')
+		${patchingtool} list-plugins
+		;;
+	'dal')
+		${patchingtool} download-all-latest-src
+		;;
+	'dals')
+		${patchingtool} download-all-latest-src
+		;;
+	'd')
+		shift 1
+		${patchingtool} portal-ee download-src $@
+		;;
+	'ds')
+		shift 1
+		${patchingtool} portal-ee download-src $@
+		;;
+	'fixes')
+		${patchingtool} portal-ee fixed-issues
+		;;
+	'ii')
+		${patchingtool} portal-ee index-info
+		;;
+	*)
+		echo "Running ${patchingtool} portal-ee info"
+		${patchingtool} portal-ee info
+		;;
+	esac
+
+else
+	echo "Can't find the Patching Tool"
+fi

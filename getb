@@ -51,8 +51,10 @@ else
 			rm -rf $bundlesloc/$folder/*
 			echo "Copying new version";
 			cp $r2loc/liferay-$ext-*.zip $bundlesloc/$folder
+			echo "Delete src";
+			rm $bundlesloc/$folder/liferay-$ext-*-src.zip
 			echo "Unzipping"
-			unzip $bundlesloc/$folder/liferay-$ext-*.zip > /dev/null
+			unzip $bundlesloc/$folder/liferay-$ext*.zip > /dev/null
 			echo "Restoring portal-ext";
 			mv $bundlesloc/portal-ext.properties $bundlesloc/$folder/portal-ext.properties
 			echo "Cleanup";
